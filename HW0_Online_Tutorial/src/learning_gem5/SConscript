@@ -2,3 +2,6 @@ Import('*')
 
 SimObject('HelloObjectPart1.py')
 Source('hello_object_part1.cc')
+
+# Add debug flag. debug/Hello.hh will be automatically generated
+DebugFlag('Hello')      
