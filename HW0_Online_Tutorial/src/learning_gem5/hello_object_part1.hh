@@ -6,8 +6,15 @@
 
 class HelloObjectPart1 : public SimObject
 {
-  public:
+private:
+    void processEvent();            /* Callback func. No param/return */
+
+    EventFunctionWrapper event;     /* Event instance with wrapper */
+
+public:
     HelloObjectPart1(HelloObjectPart1Params *p);
+
+    void startup();                 /* Schedule the event */
 };
 
 #endif // __LEARNING_GEM5_HELLO_OBJECT_PART1_HH__
