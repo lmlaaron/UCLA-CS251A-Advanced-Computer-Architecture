@@ -11,6 +11,10 @@ private:
 
     EventFunctionWrapper event;     /* Event instance with wrapper */
 
+    Tick latency;
+
+    int timesLeft;
+
 public:
     HelloObjectPart1(HelloObjectPart1Params *p);
 

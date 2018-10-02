@@ -4,7 +4,8 @@
 #include <iostream>
 
 HelloObjectPart1::HelloObjectPart1(HelloObjectPart1Params *params) :
-    SimObject(params), event([this]{processEvent();}, name())
+    SimObject(params), event([this]{processEvent();}, name()),
+    latency(100), timesLeft(10)
 {
     /* DPRINTF is a macro. Print to Hello debug flag */
     DPRINTF(Hello, "Created the hello object\n");
@@ -19,7 +20,14 @@ HelloObjectPart1Params::create()
 void
 HelloObjectPart1::processEvent()
 {
-    DPRINTF(Hello, "Hello world! Processing the event!\n");
+    timesLeft--;
+    DPRINTF(Hello, "Hello world! Processing the event! %d left\n", timesLeft);
+
+    if (timesLeft <= 0) {
+        DPRINTF(Hello, "Done firing!\n");
+    } else {
+        schedule(event, curTick() + latency);
+    }
 }
 
 void
