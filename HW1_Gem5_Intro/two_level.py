@@ -8,6 +8,10 @@ parser = argparse.ArgumentParser()
 parser.add_argument('--l1i_size', action="store", dest="l1i_size", help = "L1 instruction cache size")
 parser.add_argument('--l1d_size', action="store", dest="l1d_size", help = "L1 data cache size")
 parser.add_argument('--l2_size', action="store", dest="l2_size", help = "Unified L2 cache size")
+parser.add_argument('--cpu_type', action="store", dest="cpu_type", help = "Type of cpu to run with")
+parser.add_argument('--frequency', action="store", dest="frequency", help = "Frequency of the system")
+parser.add_argument('--mem_type', action="store", dest="mem_type", help = "type of memory to use")
+parser.add_argument('--cmd', action="store", dest="cmd", help = "executable to use")
 args = parser.parse_args()
 print(args)
 
@@ -23,6 +27,9 @@ system = System()
 # Set the clock of the system
 system.clk_domain = SrcClockDomain()                # Create a clock domain
 system.clk_domain.clock = '1GHz'                    # Freq
+if args.frequency:
+    system.clk_domain.clock = args.frequency
+
 system.clk_domain.voltage_domain = VoltageDomain()  # Don't care, use default
 
 # Set up memory
@@ -30,7 +37,9 @@ system.mem_mode = 'timing'                  # Use timing mode for memory sim
 system.mem_ranges = [AddrRange('512MB')]    # Single memory range of 512MB
 
 # Set up CPU
-system.cpu = TimingSimpleCPU()  # Timing-based CPU
+system.cpu = DerivO3CPU()  # Timing-based CPU
+if args.cpu_type == "MinorCPU":
+    system.cpu = args.MinorCPU()
 
 # System-wide memory bus
 system.membus = SystemXBar()
@@ -61,12 +70,17 @@ system.cpu.interrupts[0].int_slave = system.membus.master
 system.system_port = system.membus.slave
 
 system.mem_ctrl = DDR3_1600_8x8()
+if args.mem_type:
+    system.mem_ctrl = args.mem_type
 system.mem_ctrl.range = system.mem_ranges[0]
 system.mem_ctrl.port = system.membus.master
 
 # Set up process to execute
 process = Process()                                             # Create process
-process.cmd = ['tests/test-progs/hello/bin/x86/linux/hello']    # Compiled file
+if not args.cmd:
+    process.cmd = ['tests/test-progs/hello/bin/x86/linux/hello']    # Compiled file
+else:
+    process.cmd = [args.cmd]
 system.cpu.workload = process
 system.cpu.createThreads()
 
