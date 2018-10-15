@@ -11,6 +11,7 @@ parser.add_argument('--l2_size', action="store", dest="l2_size", help = "Unified
 parser.add_argument('--cpu_type', action="store", dest="cpu_type", help = "Type of cpu to run with")
 parser.add_argument('--frequency', action="store", dest="frequency", help = "Frequency of the system")
 parser.add_argument('--mem_type', action="store", dest="mem_type", help = "type of memory to use")
+parser.add_argument('--disable_l2', action="store_true", dest="disable_l2", help = "disable l2 cache")
 parser.add_argument('--cmd', action="store", dest="cmd", help = "executable to use")
 args = parser.parse_args()
 print(args)
@@ -39,7 +40,7 @@ system.mem_ranges = [AddrRange('512MB')]    # Single memory range of 512MB
 # Set up CPU
 system.cpu = DerivO3CPU()  # Timing-based CPU
 if args.cpu_type == "MinorCPU":
-    system.cpu = args.MinorCPU()
+    system.cpu = MinorCPU()
 
 # System-wide memory bus
 system.membus = SystemXBar()
@@ -50,15 +51,17 @@ system.cpu.dcache = L1DCache(args)          # Create L1D cache
 system.cpu.icache.connectCPU(system.cpu)    # Connect L1 cache to CPU
 system.cpu.dcache.connectCPU(system.cpu)  
 
-# Create L2 bus, because L2 only expects a single port to connect to it
-system.l2bus = L2XBar()
-system.cpu.icache.connectBus(system.l2bus)
-system.cpu.dcache.connectBus(system.l2bus)
-
-# Create L2 cache
-system.l2cache = L2Cache(args)
-system.l2cache.connectCPUSideBus(system.l2bus)
-system.l2cache.connectMemSideBus(system.membus)
+if args.disable_l2:
+    system.cpu.icache.connectBus(system.membus)
+    system.cpu.dcache.connectBus(system.membus)
+else:
+    # Create L2 bus, because L2 only expects a single port to connect to it
+    system.l2bus = L2XBar()
+    system.cpu.icache.connectBus(system.l2bus)  
+    system.cpu.dcache.connectBus(system.l2bus)
+    system.l2cache = L2Cache(args)      # Create L2 cache
+    system.l2cache.connectCPUSideBus(system.l2bus)
+    system.l2cache.connectMemSideBus(system.membus)
 
 
 # Connect other ports
@@ -70,8 +73,8 @@ system.cpu.interrupts[0].int_slave = system.membus.master
 system.system_port = system.membus.slave
 
 system.mem_ctrl = DDR3_1600_8x8()
-if args.mem_type:
-    system.mem_ctrl = args.mem_type
+if args.mem_type == 'HBM_1000_4H_1x64':
+    system.mem_ctrl = HBM_1000_4H_1x64()
 system.mem_ctrl.range = system.mem_ranges[0]
 system.mem_ctrl.port = system.membus.master
 
