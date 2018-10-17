@@ -19,7 +19,7 @@ class L1Cache(Cache):
 
 
 class L1ICache(L1Cache):
-    size = '16kB'
+    size = '64kB'
     def connectCPU(self, cpu):
         self.cpu_side = cpu.icache_port
     def __init__(self, args = None):
@@ -29,7 +29,7 @@ class L1ICache(L1Cache):
         L1ICache.size = args.l1i_size
 
 class L1DCache(L1Cache):
-    size = '16kB'
+    size = '64kB'
     def connectCPU(self, cpu):
         self.cpu_side = cpu.dcache_port
     def __init__(self, args = None):
@@ -39,7 +39,7 @@ class L1DCache(L1Cache):
         L1DCache.size = args.l1d_size
 
 class L2Cache(Cache):
-    size = '256kB'
+    size = '2MB'
     assoc = 8
     tag_latency = 20
     data_latency = 20
