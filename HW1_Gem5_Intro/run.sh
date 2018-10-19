@@ -78,7 +78,7 @@ for FILE in mm lfsr merge sieve; do
     # No L2 cache
     echo [${NUM}/28]: Task 7 [No L2 cache] -\> $FILE
     # build/X86/gem5.opt ${TARGET} --cmd=${SRC_DIR}/${FILE} --disable_l2
-    build/X86/gem5.opt ${TARGET} --cmd=${SRC_DIR}/${FILE} --cpu-type=MinorCPU \
+    build/X86/gem5.opt ${TARGET} --cmd=${SRC_DIR}/${FILE} --cpu-type=DerivO3CPU \
         --l1d_size=64kB --l1i_size=64kB --caches \
         --sys-clock=1GHz --cpu-clock=1GHz --mem-type=DDR3_1600_8x8
     cp -r m5out/ ${RESULT_DIR}/${FILE}/7_no_l2
