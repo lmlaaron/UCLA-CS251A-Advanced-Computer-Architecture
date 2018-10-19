@@ -85,3 +85,9 @@ for FILE in mm lfsr merge sieve; do
     ((NUM++))
 
 done
+
+# -O2 -ffast-math -ftree-vectorize
+cd $SRC_DIR && make clean --silent && make OPT='-O2 -ffast-math -ftree-vectorize' --silent && cd $GEM5_BASE
+build/X86/gem5.opt ${TARGET} --cmd=${SRC_DIR}/mm --cpu-type=DerivO3CPU \
+    --l1d_size=64kB --l1i_size=64kB --caches --l2_size=2MB --l2cache \
+    --sys-clock=1GHz --cpu-clock=1GHz --mem-type=DDR3_1600_8x8
