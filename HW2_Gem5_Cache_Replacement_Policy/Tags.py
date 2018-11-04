@@ -115,3 +115,4 @@ class FALRU(BaseTags):
 class NMRU(BaseSetAssoc):
     type = 'NMRU'
     cxx_header = "mem/cache/tags/nmru.hh"
+    indexing_policy = SetAssociative
