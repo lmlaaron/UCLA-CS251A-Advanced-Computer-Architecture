@@ -164,7 +164,9 @@ class BaseIndexingPolicy : public SimObject
     /**
      * Move the given block to the head of the given set
      */
-    void moveToHead(CacheBlk *blk) { }
+    void moveToHead(CacheBlk *blk) {
+      // std::cout << "BaseIndexingPolicy::moveToHead() called" << std::endl;
+    }
 
     /**
      * Move the given block to the tail of the given set

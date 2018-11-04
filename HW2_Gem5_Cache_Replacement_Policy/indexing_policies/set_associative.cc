@@ -84,6 +84,7 @@ SetAssociativeParams::create()
 void 
 SetAssociative::moveToHead(CacheBlk *blk)
 {
+  // std::cout << "SetAssociative::moveToHead() called" << std::endl;
   uint32_t set_id = extractSet(blk->tag);
   std::vector<ReplaceableEntry*> cur_set = sets[set_id];
   CacheBlk* head = static_cast<CacheBlk*>(cur_set[0]);
