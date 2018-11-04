@@ -14,60 +14,55 @@ NMRU::NMRU(const Params *p)
 {
 }
 
-BaseSetAssoc::BlkType*
+NMRU::BlkType*
 NMRU::accessBlock(Addr addr, bool is_secure, Cycles &lat) // , int master_id)
 {
     // Accesses are based on parent class, no need to do anything special
-    BlkType *blk = BaseSetAssoc::accessBlock(addr, is_secure, lat); // , master_id);
+    BlkType *blk = BaseSetAssoc::accessBlock(addr, is_secure, lat);
 
     if (blk != NULL) {
         // move this block to head of the MRU list
-        sets[blk->set].moveToHead(blk);
-        DPRINTF(CacheRepl, "set %x: moving blk %x (%s) to MRU\n",
-                blk->set, regenerateBlkAddr(blk),
-                is_secure ? "s" : "ns");
+		indexingPolicy->moveToHead(blk);
     }
 
     return blk;
 }
 
-BaseSetAssoc::BlkType*
+NMRU::BlkType*
 NMRU::findVictim(Addr addr, const bool is_secure,
-                         std::vector<CacheBlk*>& evict_blks) const
+                         std::vector<BlkType*>& evict_blks) const
 {
     BlkType *blk = BaseSetAssoc::findVictim(addr, is_secure, evict_blks);
 
     // if all blocks are valid, pick a replacement that is not MRU at random
     if (blk->isValid()) {
         // find a random index within the bounds of the set
-        int idx = random_mt.random<int>(1, assoc - 1);
-        assert(idx < assoc);
+        int idx = random_mt.random<int>(1, allocAssoc - 1);
+        assert(idx < allocAssoc);
         assert(idx >= 0);
-        blk = sets[extractSet(addr)].blks[idx];
-        DPRINTF(CacheRepl, "set %x: selecting blk %x for replacement\n",
-                blk->set, regenerateBlkAddr(blk));
+		const std::vector<ReplaceableEntry*> entries =
+            indexingPolicy->getPossibleEntries(addr);
+        blk = static_cast<BlkType*>(entries[idx]);
+		evict_blks.push_back(blk);
     }
 
     return blk;
 }
 
-void
-NMRU::insertBlock(PacketPtr pkt, BlkType *blk)
+void 
+NMRU::insertBlock(const Addr addr, const bool is_secure,
+                     const int src_master_ID, const uint32_t task_ID,
+                     BlkType *blk)
 {
-    BaseSetAssoc::insertBlock(pkt, blk);
-
-    int set = extractSet(pkt->getAddr());
-    sets[set].moveToHead(blk);
+    BaseSetAssoc::insertBlock(addr, is_secure, src_master_ID, task_ID, blk);
+	indexingPolicy->moveToHead(blk);
 }
 
 void
 NMRU::invalidate(BlkType *blk)
 {
     BaseSetAssoc::invalidate(blk);
-
-    // should be evicted before valid blocks
-    int set = blk->set;
-    sets[set].moveToTail(blk);
+    indexingPolicy->moveToTail(blk);
 }
 
 NMRU*

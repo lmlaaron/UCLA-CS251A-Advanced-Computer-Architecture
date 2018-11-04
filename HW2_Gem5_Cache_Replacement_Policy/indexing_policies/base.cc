@@ -44,77 +44,59 @@
 
 /**
  * @file
- * Definitions of a set associative indexing policy.
+ * Definitions of a common framework for indexing policies.
  */
 
-#include "mem/cache/tags/indexing_policies/set_associative.hh"
+#include "mem/cache/tags/indexing_policies/base.hh"
 
+#include <cstdlib>
+
+#include "base/intmath.hh"
+#include "base/logging.hh"
 #include "mem/cache/replacement_policies/replaceable_entry.hh"
 
-SetAssociative::SetAssociative(const Params *p)
-    : BaseIndexingPolicy(p)
+BaseIndexingPolicy::BaseIndexingPolicy(const Params *p)
+    : SimObject(p), assoc(p->assoc),
+      numSets(p->size / (p->entry_size * assoc)),
+      setShift(floorLog2(p->entry_size)), setMask(numSets - 1), sets(numSets),
+      tagShift(setShift + floorLog2(numSets))
 {
+    fatal_if(!isPowerOf2(numSets), "# of sets must be non-zero and a power " \
+             "of 2");
+    fatal_if(assoc <= 0, "associativity must be greater than zero");
+
+    // Make space for the entries
+    for (uint32_t i = 0; i < numSets; ++i) {
+        sets[i].resize(assoc);
+    }
 }
 
-uint32_t
-SetAssociative::extractSet(const Addr addr) const
+ReplaceableEntry*
+BaseIndexingPolicy::getEntry(const uint32_t set, const uint32_t way) const
 {
-    return (addr >> setShift) & setMask;
+    return sets[set][way];
+}
+
+void
+BaseIndexingPolicy::setEntry(ReplaceableEntry* entry, const uint64_t index)
+{
+    // Calculate set and way from entry index
+    const std::lldiv_t div_result = std::div((long long)index, assoc);
+    const uint32_t set = div_result.quot;
+    const uint32_t way = div_result.rem;
+
+    // Sanity check
+    assert(set < numSets);
+
+    // Assign a free pointer
+    sets[set][way] = entry;
+
+    // Inform the entry its position
+    entry->setPosition(set, way);
 }
 
 Addr
-SetAssociative::regenerateAddr(const Addr tag, const ReplaceableEntry* entry)
-                                                                        const
+BaseIndexingPolicy::extractTag(const Addr addr) const
 {
-    return (tag << tagShift) | (entry->getSet() << setShift);
-}
-
-std::vector<ReplaceableEntry*>
-SetAssociative::getPossibleEntries(const Addr addr) const
-{
-    return sets[extractSet(addr)];
-}
-
-SetAssociative*
-SetAssociativeParams::create()
-{
-    return new SetAssociative(this);
-}
-
-void 
-SetAssociative::moveToHead(CacheBlk *blk)
-{
-  uint32_t set_id = extractSet(blk->tag);
-  std::vector<ReplaceableEntry*> cur_set = sets[set_id];
-  CacheBlk* head = static_cast<CacheBlk*>(cur_set[0]);
-
-  // just swap with the top element
-  for(const auto& entry : cur_set){
-    CacheBlk* temp = static_cast<CacheBlk*>(entry);
-    if(temp==blk){
-      swap(temp,head);
-        DPRINTF(CacheRepl, "set %x: moving blk %x to MRU\n",
-                set_id, blk->tag);
-      break;
-    }
-  }
-}
-
-void 
-SetAssociative::moveToTail(CacheBlk *blk)
-{
-  uint32_t set_id = extractSet(blk->tag);
-  std::vector<ReplaceableEntry*> cur_set = sets[set_id];
-  CacheBlk* tail = static_cast<CacheBlk*>(cur_set[assoc-1]);
-
-  // just swap with the tail element
-  for(const auto& entry : cur_set){
-    CacheBlk* temp = static_cast<CacheBlk*>(entry);
-    if(temp==blk){
-      swap(temp,tail);
-        DPRINTF(CacheRepl, "set %x: moving blk %x to MRU\n",
-                set_id, blk->tag);
-      break;
-    }
-  }
+    return (addr >> tagShift);
 }
