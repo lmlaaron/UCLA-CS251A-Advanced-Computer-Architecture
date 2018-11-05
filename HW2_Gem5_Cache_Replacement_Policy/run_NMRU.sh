@@ -18,10 +18,10 @@ TARGET=/root/gem5/configs/example/se.py
 # cd $SRC_DIR && make clean && make && cd $GEM5_BASE
 
 cd $GEM5_BASE
+INDEX=1
 
 # Baseline: Freq=1GHz, Assoc=2 (default)
 for FILE in mm lfsr merge sieve; do
-# for FILE in mm; do
     echo [${INDEX}/16]
     ((INDEX++))
     build/X86/gem5.opt --debug-flags=Nmru ${TARGET} \
