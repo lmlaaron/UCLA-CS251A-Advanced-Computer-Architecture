@@ -116,3 +116,8 @@ class NMRU(BaseSetAssoc):
     type = 'NMRU'
     cxx_header = "mem/cache/tags/nmru.hh"
     indexing_policy = SetAssociative
+
+class LIP(BaseSetAssoc):
+    type = 'LIP'
+    cxx_header = "mem/cache/tags/lip.hh"
+    indexing_policy = SetAssociative

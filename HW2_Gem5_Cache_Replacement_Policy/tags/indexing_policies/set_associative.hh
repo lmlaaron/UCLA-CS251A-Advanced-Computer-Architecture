@@ -44,134 +44,104 @@
 
 /**
  * @file
- * Declaration of a common framework for indexing policies.
+ * Declaration of a set associative indexing policy.
  */
 
-#ifndef __MEM_CACHE_INDEXING_POLICIES_BASE_HH__
-#define __MEM_CACHE_INDEXING_POLICIES_BASE_HH__
+#ifndef __MEM_CACHE_INDEXING_POLICIES_SET_ASSOCIATIVE_HH__
+#define __MEM_CACHE_INDEXING_POLICIES_SET_ASSOCIATIVE_HH__
 
 #include <vector>
 
-#include "params/BaseIndexingPolicy.hh"
-#include "sim/sim_object.hh"
+#include "mem/cache/tags/indexing_policies/base.hh"
+#include "params/SetAssociative.hh"
 
-#include "mem/cache/cache_blk.hh"
+#include "debug/CacheRepl.hh"
 
 class ReplaceableEntry;
 
 /**
- * A common base class for indexing table locations. Classes that inherit
- * from it determine hash functions that should be applied based on the set
- * and way. These functions are then applied to re-map the original values.
+ * A set associative indexing policy.
  * @sa  \ref gem5MemorySystem "gem5 Memory System"
+ *
+ * The set associative indexing policy has an immutable/identity mapping, so a
+ * value x is always mapped to set x, independent of the way, that is,
+ * Hash(A, 0) = Hash(A, 1) = Hash(A, N-1), where N is the number of ways.
+ *
+ * For example, let's assume address A maps to set 3 on way 0. This policy
+ * makes so that A is also mappable to set 3 on every other way. Visually, the
+ * possible locations of A are, for a table with 4 ways and 8 sets:
+ *    Way 0   1   2   3
+ *  Set   _   _   _   _
+ *    0  |_| |_| |_| |_|
+ *    1  |_| |_| |_| |_|
+ *    2  |_| |_| |_| |_|
+ *    3  |X| |X| |X| |X|
+ *    4  |_| |_| |_| |_|
+ *    5  |_| |_| |_| |_|
+ *    6  |_| |_| |_| |_|
+ *    7  |_| |_| |_| |_|
  */
-class BaseIndexingPolicy : public SimObject
+class SetAssociative : public BaseIndexingPolicy
 {
+  // private:
   protected:
     /**
-     * The associativity.
+     * Apply a hash function to calculate address set.
+     *
+     * @param addr The address to calculate the set for.
+     * @return The set index for given combination of address and way.
      */
-    const unsigned assoc;
-
-    /**
-     * The number of sets in the cache.
-     */
-    const uint32_t numSets;
-
-    /**
-     * The amount to shift the address to get the set.
-     */
-    const int setShift;
-
-    /**
-     * Mask out all bits that aren't part of the set index.
-     */
-    const unsigned setMask;
-
-    /**
-     * The cache sets.
-     */
-    std::vector<std::vector<ReplaceableEntry*>> sets;
-
-    /**
-     * The amount to shift the address to get the tag.
-     */
-    const int tagShift;
+    uint32_t extractSet(const Addr addr) const;
 
   public:
     /**
      * Convenience typedef.
      */
-    typedef BaseIndexingPolicyParams Params;
+    typedef SetAssociativeParams Params;
 
     /**
      * Construct and initialize this policy.
      */
-    BaseIndexingPolicy(const Params *p);
+    SetAssociative(const Params *p);
 
     /**
      * Destructor.
      */
-    ~BaseIndexingPolicy() {};
-
-    /**
-     * Associate a pointer to an entry to its physical counterpart.
-     *
-     * @param entry The entry pointer.
-     * @param index An unique index for the entry.
-     */
-    void setEntry(ReplaceableEntry* entry, const uint64_t index);
-
-    /**
-     * Get an entry based on its set and way. All entries must have been set
-     * already before calling this function.
-     *
-     * @param set The set of the desired entry.
-     * @param way The way of the desired entry.
-     * @return entry The entry pointer.
-     */
-    ReplaceableEntry* getEntry(const uint32_t set, const uint32_t way) const;
-
-    /**
-     * Generate the tag from the given address.
-     *
-     * @param addr The address to get the tag from.
-     * @return The tag of the address.
-     */
-    Addr extractTag(const Addr addr) const;
+    ~SetAssociative() {};
 
     /**
      * Find all possible entries for insertion and replacement of an address.
      * Should be called immediately before ReplacementPolicy's findVictim()
      * not to break cache resizing.
+     * Returns entries in all ways belonging to the set of the address.
      *
      * @param addr The addr to a find possible entries for.
      * @return The possible entries.
      */
-    virtual std::vector<ReplaceableEntry*> getPossibleEntries(const Addr addr)
-                                                                    const = 0;
+    std::vector<ReplaceableEntry*> getPossibleEntries(const Addr addr) const
+                                                                     override;
 
     /**
-     * Regenerate an entry's address from its tag and assigned indexing bits.
+     * Regenerate an entry's address from its tag and assigned set and way.
      *
      * @param tag The tag bits.
      * @param entry The entry.
-     * @return the entry's original address.
+     * @return the entry's original addr value.
      */
-    virtual Addr regenerateAddr(const Addr tag, const ReplaceableEntry* entry)
-                                                                    const = 0;
+    Addr regenerateAddr(const Addr tag, const ReplaceableEntry* entry) const
+                                                                   override;
+
+    void moveToHead(CacheBlk *blk) override;
+    void moveToTail(CacheBlk *blk) override;
 
     /**
-     * Move the given block to the head of the given set
+     * Swap the blocks in a set
      */
-    void moveToHead(CacheBlk *blk) {
-      // std::cout << "BaseIndexingPolicy::moveToHead() called" << std::endl;
+    void swap(CacheBlk *blk1, CacheBlk *blk2){
+      CacheBlk* temp = blk1;
+      blk1=blk2;
+      blk2=temp;
     }
-
-    /**
-     * Move the given block to the tail of the given set
-     */
-    void moveToTail(CacheBlk *blk) { }
 };
 
-#endif //__MEM_CACHE_INDEXING_POLICIES_BASE_HH__
+#endif //__MEM_CACHE_INDEXING_POLICIES_SET_ASSOCIATIVE_HH__

@@ -51,6 +51,8 @@
 
 #include "mem/cache/replacement_policies/replaceable_entry.hh"
 
+#include "debug/Nmru.hh"
+
 SetAssociative::SetAssociative(const Params *p)
     : BaseIndexingPolicy(p)
 {
@@ -82,9 +84,11 @@ SetAssociativeParams::create()
 }
 
 void 
-SetAssociative::moveToHead(CacheBlk *blk)
+SetAssociative::moveToHead(CacheBlk *blk) 
 {
   // std::cout << "SetAssociative::moveToHead() called" << std::endl;
+  // DPRINTF(Nmru, "SetAssociative::moveToHead() called\n");
+
   uint32_t set_id = extractSet(blk->tag);
   std::vector<ReplaceableEntry*> cur_set = sets[set_id];
   CacheBlk* head = static_cast<CacheBlk*>(cur_set[0]);
@@ -102,7 +106,7 @@ SetAssociative::moveToHead(CacheBlk *blk)
 }
 
 void 
-SetAssociative::moveToTail(CacheBlk *blk)
+SetAssociative::moveToTail(CacheBlk *blk) 
 {
   uint32_t set_id = extractSet(blk->tag);
   std::vector<ReplaceableEntry*> cur_set = sets[set_id];
