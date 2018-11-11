@@ -37,7 +37,7 @@ NMRU::findVictim(Addr addr, const bool is_secure,
     BlkType *blk;
     for (const auto& entry : entries) {
         blk = static_cast<BlkType*>(entry);
-        if (!(blk -> isValid())){
+        if (!(blk -> isValid())) {
             evict_blks.push_back(blk);
             return blk;
         }
