@@ -32,17 +32,20 @@ LIP::BlkType*
 LIP::findVictim(Addr addr, bool is_secure,
         std::vector<BlkType*>& evict_blks) const 
 {
-    BlkType *blk = BaseSetAssoc::findVictim(addr, is_secure, evict_blks);
-
-    /* If all blocks are valid, pick LRU */
-    if (blk -> isValid()) {
-        int idx = allocAssoc - 1;
-        const std::vector<ReplaceableEntry*> entries =
-            indexingPolicy->getPossibleEntries(addr);
-        blk = static_cast<BlkType*>(entries[idx]);
-        evict_blks.push_back(blk);
+    const std::vector<ReplaceableEntry*> entries =
+        indexingPolicy->getPossibleEntries(addr);
+    BlkType *blk;
+    for (const auto& entry : entries) {
+        blk = static_cast<BlkType*>(entry);
+        if (!(blk -> isValid())) {
+            evict_blks.push_back(blk);
+            return blk;
+        }
     }
-    
+    // if all blocks are valid, return the tail block 
+    int idx = allocAssoc - 1; 
+    blk = static_cast<BlkType*>(entries[idx]); 
+    evict_blks.push_back(blk);
     return blk;
 }
 
