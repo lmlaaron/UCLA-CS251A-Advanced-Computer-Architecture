@@ -32,20 +32,23 @@ NMRU::BlkType*
 NMRU::findVictim(Addr addr, const bool is_secure,
                          std::vector<BlkType*>& evict_blks) const
 {
-    BlkType *blk = BaseSetAssoc::findVictim(addr, is_secure, evict_blks);
-
-    // if all blocks are valid, pick a replacement that is not MRU at random
-    if (blk->isValid()) {
-        // find a random index within the bounds of the set
-        int idx = random_mt.random<int>(1, allocAssoc - 1);
-        assert(idx < allocAssoc);
-        assert(idx >= 0);
-		const std::vector<ReplaceableEntry*> entries =
-            indexingPolicy->getPossibleEntries(addr);
-        blk = static_cast<BlkType*>(entries[idx]);
-		evict_blks.push_back(blk);
+    const std::vector<ReplaceableEntry*> entries =
+        indexingPolicy->getPossibleEntries(addr);
+    BlkType *blk;
+    for (const auto& entry : entries) {
+        blk = static_cast<BlkType*>(entry);
+        if (!(blk -> isValid())) {
+            evict_blks.push_back(blk);
+            return blk;
+        }
     }
-
+    // if all blocks are valid, pick a replacement that is not MRU at random
+    // find a random index within the bounds of the set 
+    int idx = random_mt.random<int>(1, allocAssoc - 1); 
+    assert(idx < allocAssoc); 
+    assert(idx >= 0); 
+    blk = static_cast<BlkType*>(entries[idx]); 
+    evict_blks.push_back(blk);
     return blk;
 }
 
