@@ -1,0 +1,34 @@
+diff --git a/src/arch/x86/isa/decoder/x87.isa b/src/arch/x86/isa/decoder/x87.isa
+index 4283d8d..6697cab 100644
+--- a/src/arch/x86/isa/decoder/x87.isa
++++ b/src/arch/x86/isa/decoder/x87.isa
+@@ -58,7 +58,11 @@ format WarnUnimpl {
+                 0x3: Inst::FSUB1(Eq);
+                 default: Inst::FSUB1(Md);
+             }
+-            0x5: fsubr();
++            // 0x5: fsubr();
++            0x5: decode MODRM_MOD {
++                0x3: Inst::FSUBR1(Eq);
++                default: Inst::FSUBR1(Md);
++            }
+             0x6: decode MODRM_MOD {
+                 0x3: Inst::FDIV1(Eq);
+                 default: Inst::FDIV1(Md);
+@@ -234,12 +238,14 @@ format WarnUnimpl {
+                 default: fcomp();
+             }
+             0x4: decode MODRM_MOD {
+-                0x3: fsubr();
++                // 0x3: fsubr();
++                0x3: Inst::FSUBR2(Mq);
+                 default: Inst::FSUB2(Mq);
+             }
+             0x5: decode MODRM_MOD {
+                 0x3: Inst::FSUB2(Eq);
+-                default: fsubr();
++                // default: fsubr();
++                default: Inst::FSUBR2(Mq);
+             }
+             0x6: decode MODRM_MOD {
+                 0x3: fdivr();
