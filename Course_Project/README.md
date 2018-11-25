@@ -9,5 +9,8 @@ gem5
 To simulate RISC-V exectable in gem5, you need to disable dynamic linking during compilation:
 ```
 riscv64-unknown-linux-gnu-gcc -static -o test test.c
+```
+To run executable in gem5:
+```
 build/RISCV/gem5.opt configs/example/se.py --cmd=test
 ```
