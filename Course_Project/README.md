@@ -6,7 +6,7 @@ This is the course project for CS251A. It adds ISA support for RISC-V vector ins
 [gem5 simulator](http://www.gem5.org/Main_Page)
 
 ## Run
-To simulate RISC-V exectable in gem5, you need to disable dynamic linking during compilation:
+To simulate RISC-V exectable in gem5, you need to disable dynamic linking during cross-compilation:
 ```
 riscv64-unknown-linux-gnu-gcc -static -o test test.c
 ```
