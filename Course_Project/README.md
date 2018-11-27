@@ -16,7 +16,7 @@ build/RISCV/gem5.opt configs/example/se.py --cmd=test
 ```
 
 ## Issues
-On machines with gcc version < 5.0.0, gem5 compilation may fail. You can checkout the following hash and then compile:
+On machines with gcc version < 5.0.0, gem5 compilation may fail. You can checkout the following branch and then compile:
 ```
 fd294813c443fc1e80ed77a76b172d7103cb3fbf
 ```
