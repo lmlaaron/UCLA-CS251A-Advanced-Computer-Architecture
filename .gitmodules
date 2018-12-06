@@ -1,0 +1,3 @@
+[submodule "Course_Project/riscv-v-spec"]
+	path = Course_Project/riscv-v-spec
+	url = https://github.com/riscv/riscv-v-spec.git
