@@ -6,9 +6,10 @@ This is the course project for CS251A. It adds ISA support for RISC-V vector ins
 [gem5 simulator](http://www.gem5.org/Main_Page)
 
 ## Compile and Run
-If using libraries, you need to disable dynamic linking during cross-compilation:
+~~If using libraries, you need to disable dynamic linking during cross-compilation:~~
 ```
-riscv64-unknown-elf-gcc -static -o test test.c
+# riscv64-unknown-elf-gcc -static -o test test.c
+riscv64-unknown-elf-gcc -o test test.c
 ~/gem5/build/RISCV/gem5.opt ~/gem5/configs/example/se.py --cmd=test
 ```
 
