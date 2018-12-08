@@ -70,8 +70,8 @@ typedef uint8_t CCReg; // Not applicable to Riscv
 typedef uint64_t MiscReg;
 
 /* Vector extensions */
-typedef int[8] IntVecReg;
-typedef float[8] FloatVecReg;
+typedef struct { int x[8]; } IntVecReg;
+typedef struct { float x[8]; } FloatVecReg;
 
 // dummy typedefs since we don't have vector regs
 const unsigned NumVecElemPerVecReg = 2;
