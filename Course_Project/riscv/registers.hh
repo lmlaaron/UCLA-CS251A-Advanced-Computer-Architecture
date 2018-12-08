@@ -85,8 +85,11 @@ const int NumMicroIntRegs = 1;
 const int NumIntRegs = NumIntArchRegs + NumMicroIntRegs;
 const int NumFloatRegs = 32;
 // This has to be one to prevent warnings that are treated as errors
-const unsigned NumVecRegs = 1;
+// const unsigned NumVecRegs = 1;
 const int NumCCRegs = 0;
+
+/* Vector extensions */
+const unsigned NumVecRegs = 32;
 
 // Semantically meaningful register indices
 const int ZeroReg = 0;
@@ -104,6 +107,7 @@ const int SyscallPseudoReturnReg = 10;
 const std::vector<int> SyscallArgumentRegs = {10, 11, 12, 13, 14, 15, 16};
 const int SyscallNumReg = 17;
 
+/* For dis-assembly */
 const std::vector<std::string> IntRegNames = {
     "zero", "ra", "sp", "gp",
     "tp", "t0", "t1", "t2",
@@ -123,6 +127,16 @@ const std::vector<std::string> FloatRegNames = {
     "fs4", "fs5", "fs6", "fs7",
     "fs8", "fs9", "fs10", "fs11",
     "ft8", "ft9", "ft10", "ft11"
+};
+const std::vector<std::string> VecRegNames = {
+    "v0",  "v1",  "v2",  "v3",
+    "v4",  "v5",  "v6",  "v7",
+    "v8",  "v9",  "v10", "v11",
+    "v12", "v13", "v14", "v15",
+    "v16", "v17", "v18", "v19",
+    "v20", "v21", "v22", "v23",
+    "v24", "v25", "v26", "v27",
+    "v28", "v29", "v30", "v31"
 };
 
 enum MiscRegIndex {
