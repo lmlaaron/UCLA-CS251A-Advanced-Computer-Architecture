@@ -6,18 +6,25 @@ This is the course project for CS251A. It adds ISA support for RISC-V vector ins
 [gem5 simulator](http://www.gem5.org/Main_Page)
 
 ## Compile and Run
-Clone with submodules:
+Clone and compile dependencies:
+```
+git clone https://github.com/gem5/gem5.git
+scons build/RISCV/gem5.opt          # Compile RISC-V architecture
+git clone https://github.com/riscv/riscv-gnu-toolchain.git
+./configure --prefix=/opt/riscv && make
+```
+Then, clone this repository with submodules:
 ```
 git clone --recursive https://github.com/JonnyKong/UCLA-CS251-Advanced-Computer-Architecture.git
 ```
-~~If using libraries, you need to disable dynamic linking during cross-compilation:~~
+Compile test program. ~~If using libraries, you need to disable dynamic linking during cross-compilation:~~
 ```
 # riscv64-unknown-elf-gcc -static -o test test.c
 riscv64-unknown-elf-gcc -o test test.c
 ~/gem5/build/RISCV/gem5.opt ~/gem5/configs/example/se.py --cmd=test
 ```
 
-T/o compile, assemble and link separately:
+To compile, assemble and link separately:
 ```
 riscv64-unknown-elf-gcc -S test.c -o test.s
 riscv64-unknown-elf-as test.s -o test.o
@@ -30,3 +37,6 @@ On machines with gcc version < 5.0.0, gem5 compilation may fail. You can checkou
 ```
 fd294813c443fc1e80ed77a76b172d7103cb3fbf
 ```
+
+## References
+[Gem5 ISA description system](http://gem5.org/ISA_description_system)
