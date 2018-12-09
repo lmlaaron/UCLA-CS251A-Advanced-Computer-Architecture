@@ -74,7 +74,10 @@ typedef struct { int x[8]; } IntVecReg;
 typedef struct { float x[8]; } FloatVecReg;
 
 // dummy typedefs since we don't have vector regs
-const unsigned NumVecElemPerVecReg = 2;
+/* Vector extensions */
+const unsigned NumVecRegs = 32;
+// const unsigned NumVecElemPerVecReg = 2;
+const unsigned NumVecElemPerVecReg = 8;
 using VecElem = uint32_t;
 using VecReg = ::VecRegT<VecElem, NumVecElemPerVecReg, false>;
 using ConstVecReg = ::VecRegT<VecElem, NumVecElemPerVecReg, true>;
@@ -88,8 +91,6 @@ const int NumFloatRegs = 32;
 // const unsigned NumVecRegs = 1;
 const int NumCCRegs = 0;
 
-/* Vector extensions */
-const unsigned NumVecRegs = 32;
 
 // Semantically meaningful register indices
 const int ZeroReg = 0;

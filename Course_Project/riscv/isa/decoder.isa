@@ -1643,6 +1643,14 @@ decode QUADRANT default Unknown::unknown() {
                     Fd_bits = Rs1;
                 }}, FloatCvtOp);
             }
+            0x15: decode FUNCT7 {
+                0x48: vadd({{
+                    Vd_sv = Vs1_sv + Vs2_sv;
+                }});
+                0x49: vsub({{
+                    Vd_sv = Vs1_sv - Vs2_sv;
+                }});
+            }
         }
 
         0x18: decode FUNCT3 {
