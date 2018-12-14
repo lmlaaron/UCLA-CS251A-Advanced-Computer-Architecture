@@ -1,30 +1,21 @@
-# Course project
-This is the course project for CS251A. It adds ISA support for RISC-V vector instructions.
+# Course project: RISC-V Vector Extension in Gem5
+This is the course project for CS251A. It adds ISA support for RISC-V vector instructions in Gem5.
 
 ## Prerequisites
 [RISC-V GNU Compiler Toolchain](https://github.com/riscv/riscv-gnu-toolchain)  
 [gem5 simulator](http://www.gem5.org/Main_Page)
 
 ## Compile and Run
-Clone and compile dependencies:
+Replace gem5/src/riscv folder and compile gem5:
 ```
-git clone https://github.com/gem5/gem5.git
-scons build/RISCV/gem5.opt          # Compile RISC-V architecture
-git clone https://github.com/riscv/riscv-gnu-toolchain.git
-./configure --prefix=/opt/riscv && make
+cp -r <PATH_TO_THIS_REPO>/riscv <PATH_TO_GEM5>/src/arch/
+scons -j2 build/RISCV/gem5.opt
 ```
-Then, clone this repository with submodules:
+Run testcases (you can specify which benchmark to run in Makefile):
 ```
-git clone --recursive https://github.com/JonnyKong/UCLA-CS251-Advanced-Computer-Architecture.git
+make test
 ```
-Compile test program. ~~If using libraries, you need to disable dynamic linking during cross-compilation:~~
-```
-# riscv64-unknown-elf-gcc -static -o test test.c
-riscv64-unknown-elf-gcc -o test test.c
-~/gem5/build/RISCV/gem5.opt ~/gem5/configs/example/se.py --cmd=test
-```
-
-To compile, assemble and link separately:
+Or you can compile, assemble, link and run separately:
 ```
 riscv64-unknown-elf-gcc -S test.c -o test.s
 riscv64-unknown-elf-as test.s -o test.o
